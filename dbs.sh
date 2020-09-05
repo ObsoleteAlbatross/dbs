@@ -50,7 +50,7 @@ installcsv() {
 installdots() {
   # install 'yadm'
   sudo -u "$name" git clone "https://github.com/TheLocehiliosan/yadm.git" "/home/$name/src/yadm" > /dev/null 2>&1
-  [ -d "/home/$name/.local/bin" ] || mkdir -p "/home/$name/.local/bin"
+  [ -d "/home/$name/.local/bin" ] || sudo -u "$name" mkdir -p "/home/$name/.local/bin"
   ln -s "/home/$name/src/yadm/yadm" "/home/$name/.local/bin"
 
   # use yadm to install dots
@@ -64,7 +64,7 @@ echo "Are you sure you want to proceed?"
 read input
 [ input="yes" ] || throw "User exited"
 echo "Choose a user to install for (dotfiles user specific, pkgs system wide)"
-read user
+read name
 id "$name" > /dev/null 2>&1 || throw "$name is an invalid user"
 
 cd "/home/$name"
@@ -87,13 +87,14 @@ echo "Installing zsh"
 chsh -s /bin/zsh $name >/dev/null 2>&1
 sudo -u "$name" mkdir -p "/home/$name/.cache/"
 sudo -u "$name" touch "/home/$name/.cache/shell_history"
-mkdir -p "/home/$name/.config/zsh/plugins"
+sudo -u "$name" mkdir -p "/home/$name/.config/zsh/plugins"
 sudo -u "$name" git clone "https://github.com/zdharma/fast-syntax-highlighting" "/home/$name/.config/zsh/plugins/fsh" > /dev/null 2>&1
 sudo -u "$name" git clone "https://github.com/zsh-users/zsh-completions.git" "/home/$name/.config/zsh/plugins/zsh-completions" > /dev/null 2>&1
 rm -f "/home/$name/.zcompdump"
 compinit
 
 # Setup nvim
+sudo -u "$name" sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 if command -v nvim >/dev/null 2>&1; then
   echo "Bootstraping nvim"
   sudo -u "$name" nvim '+PlugUpdate' '+PlugClean!' '+PlugUpdate' '+qall'
