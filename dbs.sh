@@ -22,11 +22,10 @@ installyay() {
   # install yay if it doesn't exist
   [ -f "/usr/bin/yay" ] || {
     echo "Installing 'yay' (aur helper)"
-    mkdir -p "/home/$user/src"
-    cd "/home/$user/src"
-    sudo -u "$user" git clone --depth 1 "https://aur.archlinux.org/yay.git"
+    cd "/home/$name/src"
+    sudo -u "$name" git clone "https://aur.archlinux.org/yay.git" > /dev/null 2>&1
     cd yay
-    sudo -u "$user" makepkg --noconfirm -si > /dev/null 2>&1
+    sudo -u "$name" makepkg --noconfirm -si > /dev/null 2>&1
   }
 }
 
@@ -50,12 +49,12 @@ installcsv() {
 
 installdots() {
   # install 'yadm'
-  sudo -u "$user" git clone --depth 1 "https://github.com/TheLocehiliosan/yadm.git" "/home/$user/src/yadm"
-  [ -d "/home/$user/.local/bin" ] || mkdir -p "/home/$user/.local/bin"
-  ln -s "/home/$user/src/yadm/yadm" "/home/$user/.local/bin"
+  sudo -u "$name" git clone "https://github.com/TheLocehiliosan/yadm.git" "/home/$name/src/yadm" > /dev/null 2>&1
+  [ -d "/home/$name/.local/bin" ] || mkdir -p "/home/$name/.local/bin"
+  ln -s "/home/$name/src/yadm/yadm" "/home/$name/.local/bin"
 
   # use yadm to install dots
-  sudo -u "$user" yadm clone "https://github.com/ObsoleteAlbatross/dotfiles"
+  sudo -u "$name" "/home/$name/.local/bin/yadm" clone "https://github.com/ObsoleteAlbatross/dotfiles"
 }
 
 # === The meat ===
@@ -66,9 +65,9 @@ read input
 [ input="yes" ] || throw "User exited"
 echo "Choose a user to install for (dotfiles user specific, pkgs system wide)"
 read user
-id "$user" > /dev/null 2>&1 || throw "$user is an invalid user"
+id "$name" > /dev/null 2>&1 || throw "$name is an invalid user"
 
-cd "/home/$user"
+cd "/home/$name"
 
 # If arch, get yay (aur helper)
 [ "$distro"="arch" ] && installyay
@@ -84,33 +83,36 @@ rmmod pcspkr
 echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 
 # Setup zsh
+echo "Installing zsh"
 chsh -s /bin/zsh $name >/dev/null 2>&1
-sudo -u "$user" mkdir -p "/home/$name/.cache/"
-sudo -u "$user" touch "/home/$name/.cache/shell_history"
-mkdir -p "/home/$user/.config/zsh/plugins"
-sudo -u "$user" git clone --depth 1 "https://github.com/zdharma/fast-syntax-highlighting" "/home/$user/.config/zsh/plugins/fsh"
-sudo -u "$user" git clone --depth 1 "https://github.com/zsh-users/zsh-completions.git" "/home/$user/.config/zsh/plugins/zsh-completions"
-rm -f "/home/$user/.zcompdump"
+sudo -u "$name" mkdir -p "/home/$name/.cache/"
+sudo -u "$name" touch "/home/$name/.cache/shell_history"
+mkdir -p "/home/$name/.config/zsh/plugins"
+sudo -u "$name" git clone "https://github.com/zdharma/fast-syntax-highlighting" "/home/$name/.config/zsh/plugins/fsh" > /dev/null 2>&1
+sudo -u "$name" git clone "https://github.com/zsh-users/zsh-completions.git" "/home/$name/.config/zsh/plugins/zsh-completions" > /dev/null 2>&1
+rm -f "/home/$name/.zcompdump"
 compinit
 
-# Setup vim
+# Setup nvim
 if command -v nvim >/dev/null 2>&1; then
   echo "Bootstraping nvim"
-  nvim '+PlugUpdate' '+PlugClean!' '+PlugUpdate' '+qall'
+  sudo -u "$name" nvim '+PlugUpdate' '+PlugClean!' '+PlugUpdate' '+qall'
 fi
 
 # Install universal ctags
-sudo -u "$user" git clone --depth 1 "https://github.com/universal-ctags/ctags" "/home/$user/src"
-cd "/home/$user/src/ctags"
-sudo -u "$user" /home/$user/src/ctags/autogen.sh
-sudo -u "$user" /home/$user/src/ctags/configure --prefix="/home/$user/.local/bin"
-sudo -u "$user" make
-sudo -u "$user" make install
+echo "Installing universal ctags"
+sudo -u "$name" git clone "https://github.com/universal-ctags/ctags" "/home/$name/src/ctags" > /dev/null 2>&1
+cd "/home/$name/src/ctags"
+sudo -u "$name" /home/$name/src/ctags/autogen.sh
+sudo -u "$name" /home/$name/src/ctags/configure --prefix="/home/$name/.local/bin"
+sudo -u "$name" make
+sudo -u "$name" make install
 
 # Install st
-sudo -u "$user" git clone --depth 1 "https://github.com/LukeSmithxyz/st" "/home/$user/src"
-cd "/home/$user/src/st"
+echo "Installing st"
+sudo -u "$name" git clone "https://github.com/LukeSmithxyz/st" "/home/$name/src/st" > /dev/null 2>&1
+cd "/home/$name/src/st"
 make install
-ln -s "/home/$user/src/st/st" "/home/$user/.local/bin/sh"
+ln -s "/home/$name/src/st/st" "/home/$name/.local/bin/sh"
 
 echo "Done!"
