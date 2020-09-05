@@ -24,9 +24,9 @@ installyay() {
     echo "Installing 'yay' (aur helper)"
     mkdir -p "/home/$user/src"
     cd "/home/$user/src"
-    sudo -u "$name" git clone --depth 1 "https://aur.archlinux.org/yay.git"
+    sudo -u "$user" git clone --depth 1 "https://aur.archlinux.org/yay.git"
     cd yay
-    sudo -u "$name" makepkg --noconfirm -si > /dev/null 2>&1
+    sudo -u "$user" makepkg --noconfirm -si > /dev/null 2>&1
   }
 }
 
@@ -50,12 +50,12 @@ installcsv() {
 
 installdots() {
   # install 'yadm'
-  sudo -u "$name" git clone --depth 1 "https://github.com/TheLocehiliosan/yadm.git" "/home/$user/src/yadm"
+  sudo -u "$user" git clone --depth 1 "https://github.com/TheLocehiliosan/yadm.git" "/home/$user/src/yadm"
   [ -d "/home/$user/.local/bin" ] || mkdir -p "/home/$user/.local/bin"
   ln -s "/home/$user/src/yadm/yadm" "/home/$user/.local/bin"
 
   # use yadm to install dots
-  yadm clone "https://github.com/ObsoleteAlbatross/dotfiles"
+  sudo -u "$user" yadm clone "https://github.com/ObsoleteAlbatross/dotfiles"
 }
 
 # === The meat ===
@@ -85,11 +85,11 @@ echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 
 # Setup zsh
 chsh -s /bin/zsh $name >/dev/null 2>&1
-sudo -u "$name" mkdir -p "/home/$name/.cache/"
-sudo -u "$name" touch "/home/$name/.cache/shell_history"
+sudo -u "$user" mkdir -p "/home/$name/.cache/"
+sudo -u "$user" touch "/home/$name/.cache/shell_history"
 mkdir -p "/home/$user/.config/zsh/plugins"
-sudo -u "$name" git clone --depth 1 "https://github.com/zdharma/fast-syntax-highlighting" "/home/$user/.config/zsh/plugins/fsh"
-sudo -u "$name" git clone --depth 1 "https://github.com/zsh-users/zsh-completions.git" "/home/$user/.config/zsh/plugins/zsh-completions"
+sudo -u "$user" git clone --depth 1 "https://github.com/zdharma/fast-syntax-highlighting" "/home/$user/.config/zsh/plugins/fsh"
+sudo -u "$user" git clone --depth 1 "https://github.com/zsh-users/zsh-completions.git" "/home/$user/.config/zsh/plugins/zsh-completions"
 rm -f "/home/$user/.zcompdump"
 compinit
 
@@ -100,15 +100,15 @@ if command -v nvim >/dev/null 2>&1; then
 fi
 
 # Install universal ctags
-sudo -u "$name" git clone --depth 1 "https://github.com/universal-ctags/ctags" "/home/$user/src"
+sudo -u "$user" git clone --depth 1 "https://github.com/universal-ctags/ctags" "/home/$user/src"
 cd "/home/$user/src/ctags"
-sudo -u "$name" /home/$user/src/ctags/autogen.sh
-sudo -u "$name" /home/$user/src/ctags/configure --prefix="/home/$user/.local/bin"
-sudo -u "$name" make
-sudo -u "$name" make install
+sudo -u "$user" /home/$user/src/ctags/autogen.sh
+sudo -u "$user" /home/$user/src/ctags/configure --prefix="/home/$user/.local/bin"
+sudo -u "$user" make
+sudo -u "$user" make install
 
 # Install st
-sudo -u "$name" git clone --depth 1 "https://github.com/LukeSmithxyz/st" "/home/$user/src"
+sudo -u "$user" git clone --depth 1 "https://github.com/LukeSmithxyz/st" "/home/$user/src"
 cd "/home/$user/src/st"
 make install
 ln -s "/home/$user/src/st/st" "/home/$user/.local/bin/sh"
