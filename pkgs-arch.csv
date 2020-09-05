@@ -5,7 +5,6 @@
 ,xorg-xbacklight
 ,xf86-video-intel
 ,bat
-A,bear
 ,bison
 ,dmenu
 ,exa
@@ -42,3 +41,14 @@ A,bear
 ,youtube-dl
 ,zathura
 ,zathura-pdf-mupdf
+,alsa-utils
+,gcc
+,gcc-libs
+,pkgconf
+,autoconf
+,automake
+,python
+,libseccomp
+,jansson
+,libyaml
+,libxml2
