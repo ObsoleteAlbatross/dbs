@@ -52,3 +52,4 @@
 ,jansson
 ,libyaml
 ,libxml2
+,zsh
