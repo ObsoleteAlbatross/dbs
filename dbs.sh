@@ -9,7 +9,7 @@ if type xbps-install >/dev/null 2>&1; then
 else
   distro="arch"
   pkgfile="https://raw.githubusercontent.com/ObsoleteAlbatross/dbs/master/pkgs-arch.csv"
-  installpkg() { pacman --noconfirm --needed -S "$1" > /dev/null 2>&1 ;}
+  installpkg() { pacman --noconfirm -S "$1" > /dev/null 2>&1 ;}
 fi
 
 # === Helpers ===
@@ -38,14 +38,12 @@ installpkgwrap() {
 
 installcsv() {
   echo "Installing through package manager"
-  curl -Ls "$pkgfile" | sed '/^#/d' | eval grep "$grepseq" > /tmp/pkgs.csv
+  curl -Ls "$pkgfile" | sed '/^#/d' > /tmp/pkgs.csv
   total=$(wc -l < /tmp/pkgs.csv)
-  aurinstalled=$(pacman -Qqm)
-  while IFS=, read -r tag program comment; do
+  while IFS=, read -r tag program; do
   	n=$((n+1))
-  	echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
   	case "$tag" in
-      *) installpkgwrap "$program" "$comment" ;;
+      *) installpkgwrap "$program" ;;
     esac
   done < /tmp/pkgs.csv
 }
@@ -112,7 +110,7 @@ sudo -u "$name" make install
 # Install st
 git clone "https://github.com/LukeSmithxyz/st" "/home/$user/src"
 cd "/home/$user/src/st"
-sudo make install
+make install
 ln -s "/home/$user/src/st/st" "/home/$user/.local/bin/sh"
 
 echo "Done!"
