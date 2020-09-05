@@ -29,6 +29,17 @@ installyay() {
   }
 }
 
+stackinstallxmonad() {
+  # load zprofile for correct paths
+  sudo -u "$name" zsh
+  sudo -u "$name" stack setup
+  sudo -u "$name" update
+  sudo -u "$name" install stack
+  xbps-remove -R stack
+  sudo -u "$name" install xmonad
+  sudo -u "$name" install xmonad-contrib
+  sudo -u "$name" stack exec -- xmonad --recompile
+}
 
 installpkgwrap() {
   echo "Installing '$1' ($n of $total)"
@@ -37,13 +48,11 @@ installpkgwrap() {
 
 installcsv() {
   echo "Installing through package manager"
-  curl -Ls "$pkgfile" | sed '/^#/d' > /tmp/pkgs.csv
+  curl -Ls "$pkgfile" > /tmp/pkgs.csv
   total=$(wc -l < /tmp/pkgs.csv)
-  while IFS=, read -r tag program; do
+  while IFS=, read -r program; do
   	n=$((n+1))
-  	case "$tag" in
-      *) installpkgwrap "$program" ;;
-    esac
+    installpkgwrap "$program"
   done < /tmp/pkgs.csv
 }
 
@@ -55,6 +64,11 @@ installdots() {
 
   # use yadm to install dots
   sudo -u "$name" "/home/$name/.local/bin/yadm" clone "https://github.com/ObsoleteAlbatross/dotfiles"
+}
+
+networkmanager() {
+  ln -s /etc/sv/dbus /var/service/
+  ln -s /etc/sv/NetworkManager /var/service
 }
 
 # === The meat ===
@@ -123,5 +137,11 @@ ln -s "/home/$name/src/pfetch" "/home/$name/.local/bin/pfetch"
 
 # Setup bg
 sudo -u "$name" "/home/$name/pictures/wallpapers/310e488.png"
+
+# Cache fonts
+sudo -u "$name" fc-cache -f > /dev/null 2>&1
+
+# If void, install xmonad using stack
+[ "$distro"="void" ] && stackinstallxmonad && networkmanager
 
 echo "Done!"
